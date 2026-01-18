@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { COUNTRIES, OTT_SERVICES } from '../constants';
 import { Country, OTTService } from '../types';
 import { Check } from 'lucide-react';
@@ -17,6 +17,18 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
   selectedServices,
   toggleService
 }) => {
+  const sortedCountries = useMemo(() => {
+    const selected = COUNTRIES.filter(c => selectedCountries.includes(c.code));
+    const unselected = COUNTRIES.filter(c => !selectedCountries.includes(c.code));
+    return [...selected, ...unselected];
+  }, [selectedCountries]);
+
+  const sortedServices = useMemo(() => {
+    const selected = OTT_SERVICES.filter(s => selectedServices.includes(s.id));
+    const unselected = OTT_SERVICES.filter(s => !selectedServices.includes(s.id));
+    return [...selected, ...unselected];
+  }, [selectedServices]);
+
   return (
     <div className="bg-slate-900/40 backdrop-blur-3xl border border-slate-800/60 rounded-[3rem] p-10 sm:p-14 shadow-[0_30px_100px_-20px_rgba(0,0,0,0.5)] relative overflow-hidden">
       {/* Decorative accent */}
@@ -39,7 +51,7 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
-          {COUNTRIES.map((c: Country) => (
+          {sortedCountries.map((c: Country) => (
             <button
               key={c.code}
               onClick={() => toggleCountry(c.code)}
@@ -80,7 +92,7 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6">
-          {OTT_SERVICES.map((s: OTTService) => (
+          {sortedServices.map((s: OTTService) => (
             <button
               key={s.id}
               onClick={() => toggleService(s.id)}
@@ -119,5 +131,4 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
     </div>
   );
 };
-
 export default SelectionPanel;

@@ -1,6 +1,5 @@
 
 export enum ContentType {
-  ALL = 'All',
   MOVIE = 'Movie',
   TV_SHOW = 'TV Show'
 }
@@ -22,6 +21,7 @@ export interface OTTService {
 
 export interface ContentItem {
   id: string;
+  tmdbId: number; // TMDB ID for fetching additional data
   title: string;
   description: string;
   type: string; // Changed to string to handle 'Movie' or 'TV Show' strings from API

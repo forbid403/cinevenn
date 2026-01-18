@@ -41,18 +41,6 @@ export const OTT_SERVICES: OTTService[] = [
     id: 'hulu', 
     name: 'Hulu', 
     color: 'bg-green-500',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg'
-  },
-  { 
-    id: 'wavve', 
-    name: 'Wavve', 
-    color: 'bg-blue-600',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/0/09/Wavve_Logo.svg'
-  },
-  { 
-    id: 'tving', 
-    name: 'Tving', 
-    color: 'bg-red-500',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/1/13/Tving_Logo.svg'
-  },
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Hulu_logo_%282018%29.svg/2560px-Hulu_logo_%282018%29.svg.png'
+  }
 ];

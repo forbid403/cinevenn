@@ -1,21 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, Loader2, Sparkles, AlertCircle } from 'lucide-react';
-import { ContentItem, ContentType, SearchParams, ViewMode } from './types';
-import { fetchCrossCountryContent } from './services/geminiService';
+import { ContentItem, ContentType, ViewMode } from './types';
+import { fetchMoviesAndTVShows } from './services/tmdbService';
 import Header from './components/Header';
 import SelectionPanel from './components/SelectionPanel';
 import ResultsSection from './components/ResultsSection';
 import Footer from './components/Footer';
 
+interface CacheEntry {
+  movies: ContentItem[];
+  tvShows: ContentItem[];
+  timestamp: number;
+  currentPage: { movies: number; tvShows: number };
+}
+
 const App: React.FC = () => {
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(['KR', 'US']);
-  const [selectedServices, setSelectedServices] = useState<string[]>(['netflix', 'disney']);
-  const [contentType, setContentType] = useState<ContentType>(ContentType.ALL);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [contentType, setContentType] = useState<ContentType>(ContentType.MOVIE);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [results, setResults] = useState<ContentItem[]>([]);
+  const [cache, setCache] = useState<Map<string, CacheEntry>>(new Map());
+  const [movies, setMovies] = useState<ContentItem[]>([]);
+  const [tvShows, setTVShows] = useState<ContentItem[]>([]);
   const [filteredResults, setFilteredResults] = useState<ContentItem[]>([]);
   const [activeGenre, setActiveGenre] = useState<string>('All');
+  const [currentPage, setCurrentPage] = useState({ movies: 1, tvShows: 1 });
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -32,17 +43,29 @@ const App: React.FC = () => {
     );
   };
 
-  const genres = ['All', ...Array.from(new Set(results.flatMap(item => item.genre)))].slice(0, 8);
+  const createCacheKey = (countries: string[], services: string[]) => {
+    return `${countries.sort().join(',')}_${services.sort().join(',')}`;
+  };
+
+  const displayedResults = useMemo(() => {
+    if (contentType === ContentType.MOVIE) {
+      return movies;
+    } else {
+      return tvShows;
+    }
+  }, [contentType, movies, tvShows]);
+
+  const genres = ['All', ...Array.from(new Set(displayedResults.flatMap(item => item.genre)))].slice(0, 8);
 
   useEffect(() => {
-    let filtered = [...results];
+    let filtered = [...displayedResults];
 
     if (activeGenre !== 'All') {
       filtered = filtered.filter(item => item.genre.includes(activeGenre));
     }
 
     setFilteredResults(filtered);
-  }, [activeGenre, results]);
+  }, [activeGenre, displayedResults]);
 
   const handleSearch = async () => {
     if (selectedCountries.length === 0 || selectedServices.length === 0) {
@@ -50,19 +73,54 @@ const App: React.FC = () => {
       return;
     }
 
+    const cacheKey = createCacheKey(selectedCountries, selectedServices);
+
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      setMovies(cachedData.movies);
+      setTVShows(cachedData.tvShows);
+      setCurrentPage(cachedData.currentPage);
+
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
-    setResults([]);
     setActiveGenre('All');
 
     try {
-      const params: SearchParams = {
+      const params = {
         countries: selectedCountries,
-        services: selectedServices,
-        type: contentType
+        services: selectedServices
       };
-      const data = await fetchCrossCountryContent(params);
-      setResults(data);
+
+      // Only fetch the current content type initially
+      if (contentType === ContentType.MOVIE) {
+        const { movies: movieData } = await fetchMoviesAndTVShows(params, 1, 0);
+        setMovies(movieData);
+        setCurrentPage({ movies: 1, tvShows: 0 });
+
+        setCache(prev => new Map(prev).set(cacheKey, {
+          movies: movieData,
+          tvShows: [],
+          timestamp: Date.now(),
+          currentPage: { movies: 1, tvShows: 0 }
+        }));
+      } else {
+        const { tvShows: tvData } = await fetchMoviesAndTVShows(params, 0, 1);
+        setTVShows(tvData);
+        setCurrentPage({ movies: 0, tvShows: 1 });
+
+        setCache(prev => new Map(prev).set(cacheKey, {
+          movies: [],
+          tvShows: tvData,
+          timestamp: Date.now(),
+          currentPage: { movies: 0, tvShows: 1 }
+        }));
+      }
 
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -73,6 +131,150 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const loadMoreMovies = async () => {
+    const nextPage = currentPage.movies + 1;
+    setIsFetchingMore(true);
+
+    try {
+      const params = {
+        countries: selectedCountries,
+        services: selectedServices
+      };
+
+      const { movies: newMovies } = await fetchMoviesAndTVShows(params, nextPage, 0);
+
+      setMovies(prev => [...prev, ...newMovies]);
+      setCurrentPage(prev => ({ ...prev, movies: nextPage }));
+
+      const cacheKey = createCacheKey(selectedCountries, selectedServices);
+      setCache(prev => {
+        const cached = prev.get(cacheKey);
+        if (cached) {
+          return new Map(prev).set(cacheKey, {
+            ...cached,
+            movies: [...cached.movies, ...newMovies],
+            currentPage: { ...cached.currentPage, movies: nextPage }
+          });
+        }
+        return prev;
+      });
+    } catch (err) {
+      console.error('Failed to load more movies:', err);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
+  const loadMoreTVShows = async () => {
+    const nextPage = currentPage.tvShows + 1;
+    setIsFetchingMore(true);
+
+    try {
+      const params = {
+        countries: selectedCountries,
+        services: selectedServices
+      };
+
+      const { tvShows: newTVShows } = await fetchMoviesAndTVShows(params, 0, nextPage);
+
+      setTVShows(prev => [...prev, ...newTVShows]);
+      setCurrentPage(prev => ({ ...prev, tvShows: nextPage }));
+
+      const cacheKey = createCacheKey(selectedCountries, selectedServices);
+      setCache(prev => {
+        const cached = prev.get(cacheKey);
+        if (cached) {
+          return new Map(prev).set(cacheKey, {
+            ...cached,
+            tvShows: [...cached.tvShows, ...newTVShows],
+            currentPage: { ...cached.currentPage, tvShows: nextPage }
+          });
+        }
+        return prev;
+      });
+    } catch (err) {
+      console.error('Failed to load more TV shows:', err);
+    } finally {
+      setIsFetchingMore(false);
+    }
+  };
+
+  // Fetch missing content type when user switches tabs
+  useEffect(() => {
+    const cacheKey = createCacheKey(selectedCountries, selectedServices);
+    const cachedData = cache.get(cacheKey);
+
+    if (!cachedData) return;
+
+    // If switching to TV shows and we don't have them yet, fetch them
+    if (contentType === ContentType.TV_SHOW && tvShows.length === 0 && selectedCountries.length > 0) {
+      const fetchTVShows = async () => {
+        setIsLoading(true);
+        try {
+          const params = {
+            countries: selectedCountries,
+            services: selectedServices
+          };
+
+          const { tvShows: tvData } = await fetchMoviesAndTVShows(params, 0, 1);
+          setTVShows(tvData);
+          setCurrentPage(prev => ({ ...prev, tvShows: 1 }));
+
+          setCache(prev => {
+            const cached = prev.get(cacheKey);
+            if (cached) {
+              return new Map(prev).set(cacheKey, {
+                ...cached,
+                tvShows: tvData,
+                currentPage: { ...cached.currentPage, tvShows: 1 }
+              });
+            }
+            return prev;
+          });
+        } catch (err) {
+          console.error('Failed to fetch TV shows:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchTVShows();
+    }
+
+    // If switching to movies and we don't have them yet, fetch them
+    if (contentType === ContentType.MOVIE && movies.length === 0 && selectedCountries.length > 0) {
+      const fetchMovies = async () => {
+        setIsLoading(true);
+        try {
+          const params = {
+            countries: selectedCountries,
+            services: selectedServices
+          };
+
+          const { movies: movieData } = await fetchMoviesAndTVShows(params, 1, 0);
+          setMovies(movieData);
+          setCurrentPage(prev => ({ ...prev, movies: 1 }));
+
+          setCache(prev => {
+            const cached = prev.get(cacheKey);
+            if (cached) {
+              return new Map(prev).set(cacheKey, {
+                ...cached,
+                movies: movieData,
+                currentPage: { ...cached.currentPage, movies: 1 }
+              });
+            }
+            return prev;
+          });
+        } catch (err) {
+          console.error('Failed to fetch movies:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchMovies();
+    }
+  }, [contentType, selectedCountries, selectedServices, cache, movies.length, tvShows.length]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30 overflow-x-hidden">
@@ -112,7 +314,9 @@ const App: React.FC = () => {
             <button
               onClick={handleSearch}
               disabled={isLoading}
-              className="group relative inline-flex items-center gap-5 px-14 py-7 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2.5rem] font-black text-2xl shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed overflow-hidden border border-white/20"
+              className={`group relative inline-flex items-center gap-5 px-14 py-7 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[2.5rem] font-black text-2xl shadow-[0_20px_60px_-15px_rgba(79,70,229,0.5)] transition-all active:scale-95 overflow-hidden border border-white/20
+                ${(selectedCountries.length === 0 || selectedServices.length === 0) ? 'opacity-70 cursor-not-allowed' : ''}
+              `}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               <div className="relative flex items-center gap-4">
@@ -133,16 +337,24 @@ const App: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="max-w-2xl mx-auto w-full bg-red-500/10 border border-red-500/50 p-6 rounded-3xl flex items-center gap-5 text-red-400 shadow-2xl animate-in fade-in slide-in-from-top-6">
-              <AlertCircle size={28} />
-              <p className="font-bold text-lg">{error}</p>
-            </div>
+            error === 'Please select at least one country and one platform.' ? (
+              <p className="text-red-400 text-sm font-medium -mt-4 text-center">
+                {error}
+              </p>
+            ) : (
+              <div className="max-w-2xl mx-auto w-full bg-red-500/10 border border-red-500/50 p-6 rounded-3xl flex items-center gap-5 text-red-400 shadow-2xl animate-in fade-in slide-in-from-top-6">
+                <AlertCircle size={28} />
+                <p className="font-bold text-lg">{error}</p>
+              </div>
+            )
           )}
 
           <ResultsSection
-            results={results}
+            movies={movies}
+            tvShows={tvShows}
             filteredResults={filteredResults}
             isLoading={isLoading}
+            isFetchingMore={isFetchingMore}
             error={error}
             contentType={contentType}
             onContentTypeChange={setContentType}
@@ -152,7 +364,10 @@ const App: React.FC = () => {
             activeGenre={activeGenre}
             onGenreChange={setActiveGenre}
             selectedCountriesCount={selectedCountries.length}
+            selectedCountries={selectedCountries}
             resultsRef={resultsRef}
+            onLoadMoreMovies={loadMoreMovies}
+            onLoadMoreTVShows={loadMoreTVShows}
           />
         </div>
       </main>
