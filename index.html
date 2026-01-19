@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GlobalStream - Cross-Country OTT Discovery</title>
+    <title>CineVenn - Find movies available in multiple countries at once</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +16,22 @@
             background-color: #020617;
         }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script>
+        // Only load GA4 if measurement ID is provided
+        const measurementId = '%VITE_GA4_MEASUREMENT_ID%';
+        if (measurementId && measurementId !== '' && !measurementId.startsWith('%')) {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', measurementId);
+        }
+    </script>
 <script type="importmap">
 {
   "imports": {

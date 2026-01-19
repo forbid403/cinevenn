@@ -1,5 +1,8 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
+import { Clapperboard } from 'lucide-react';
+
+const PRIVACY_POLICY_LINK = 'https://superb-goose-420.notion.site/Privacy-Policy-2eda16ed7abb801c8895e3353c75e13e';
+const TERMS_OF_SERVICE_LINK = 'https://superb-goose-420.notion.site/Terms-of-Services-2eda16ed7abb80d7966fe4599253dd35';
 
 const Footer: React.FC = () => {
   return (
@@ -9,37 +12,21 @@ const Footer: React.FC = () => {
         <div className="col-span-1 md:col-span-2 space-y-8">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl">
-              <Globe className="text-white" size={28} />
+              <Clapperboard className="text-white" size={28} />
             </div>
-            <span className="font-black text-3xl tracking-tighter text-white">GLOBALSTREAM</span>
+            <span className="font-black text-3xl tracking-tighter text-white">VENNSEARCH</span>
           </div>
           <p className="text-slate-500 text-xl leading-relaxed max-w-lg">
-            The ultimate cross-reference engine for global streaming metadata. We solve the puzzle of regional content availability.
+            © 2026 VENN CINE. All rights reserved.
           </p>
-        </div>
-        <div className="space-y-6">
-          <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Resources</h5>
-          <ul className="space-y-4 text-slate-500 font-bold text-sm">
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Catalog API</a></li>
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Data Partners</a></li>
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Licensing Nodes</a></li>
-          </ul>
         </div>
         <div className="space-y-6">
           <h5 className="text-white font-black uppercase tracking-[0.2em] text-xs">Platform</h5>
           <ul className="space-y-4 text-slate-500 font-bold text-sm">
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Status</a></li>
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
+            <li><a href="mailto:sonia.bae.tech@gmail.com" className="hover:text-indigo-400 transition-colors">Contact Us</a></li>
+            <li><a href={PRIVACY_POLICY_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">Privacy Policy</a></li>
+            <li><a href={TERMS_OF_SERVICE_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-400 transition-colors">Terms of Service</a></li>
           </ul>
-        </div>
-      </div>
-      <div className="max-w-7xl mx-auto px-6 pt-20 mt-20 border-t border-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-8 text-slate-600 font-black uppercase tracking-[0.3em] text-[10px]">
-        <div className="flex items-center gap-3">
-          <span>&copy; 2025 GlobalStream Intel Engine</span>
-        </div>
-        <div className="flex items-center gap-6">
-          <span className="text-indigo-500/40">Powered by Gemini 3 Flash Hybrid</span>
         </div>
       </div>
     </footer>

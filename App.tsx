@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Search, Loader2, Sparkles, AlertCircle } from 'lucide-react';
+import { Search, Loader2, Sparkles, AlertCircle, Clapperboard } from 'lucide-react';
 import { ContentItem, ContentType, ViewMode } from './types';
 import { fetchMoviesAndTVShows } from './services/tmdbService';
+import { analytics, AnalyticsEvents } from './services/analyticsService';
 import Header from './components/Header';
 import SelectionPanel from './components/SelectionPanel';
 import ResultsSection from './components/ResultsSection';
 import Footer from './components/Footer';
+import { installToast } from './components/Toast';
+import { Analytics } from '@vercel/analytics/react';
 
 interface CacheEntry {
   movies: ContentItem[];
@@ -15,6 +18,10 @@ interface CacheEntry {
 }
 
 const App: React.FC = () => {
+  useEffect(() => {
+    installToast();
+  }, []);
+
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [contentType, setContentType] = useState<ContentType>(ContentType.MOVIE);
@@ -91,6 +98,16 @@ const App: React.FC = () => {
     setError(null);
     setActiveGenre('All');
 
+    // Track search initiation
+    const searchStartTime = Date.now();
+    analytics.track(AnalyticsEvents.SEARCH_INITIATED, {
+      countries: selectedCountries,
+      services: selectedServices,
+      content_type: contentType,
+      country_count: selectedCountries.length,
+      service_count: selectedServices.length
+    });
+
     try {
       const params = {
         countries: selectedCountries,
@@ -109,6 +126,15 @@ const App: React.FC = () => {
           timestamp: Date.now(),
           currentPage: { movies: 1, tvShows: 0 }
         }));
+
+        // Track successful search
+        analytics.track(AnalyticsEvents.SEARCH_COMPLETED, {
+          content_type: ContentType.MOVIE,
+          results_count: movieData.length,
+          duration_ms: Date.now() - searchStartTime,
+          countries: selectedCountries,
+          services: selectedServices
+        });
       } else {
         const { tvShows: tvData } = await fetchMoviesAndTVShows(params, 0, 1);
         setTVShows(tvData);
@@ -120,6 +146,15 @@ const App: React.FC = () => {
           timestamp: Date.now(),
           currentPage: { movies: 0, tvShows: 1 }
         }));
+
+        // Track successful search
+        analytics.track(AnalyticsEvents.SEARCH_COMPLETED, {
+          content_type: ContentType.TV_SHOW,
+          results_count: tvData.length,
+          duration_ms: Date.now() - searchStartTime,
+          countries: selectedCountries,
+          services: selectedServices
+        });
       }
 
       setTimeout(() => {
@@ -127,6 +162,14 @@ const App: React.FC = () => {
       }, 100);
     } catch (err) {
       setError('Failed to fetch global library data. Please try again.');
+
+      // Track search error
+      analytics.track(AnalyticsEvents.SEARCH_ERROR, {
+        error_message: err instanceof Error ? err.message : 'Unknown error',
+        countries: selectedCountries,
+        services: selectedServices,
+        content_type: contentType
+      });
     } finally {
       setIsLoading(false);
     }
@@ -135,6 +178,13 @@ const App: React.FC = () => {
   const loadMoreMovies = async () => {
     const nextPage = currentPage.movies + 1;
     setIsFetchingMore(true);
+
+    // Track load more action
+    analytics.track(AnalyticsEvents.LOAD_MORE_CLICKED, {
+      content_type: ContentType.MOVIE,
+      current_page: currentPage.movies,
+      next_page: nextPage
+    });
 
     try {
       const params = {
@@ -169,6 +219,13 @@ const App: React.FC = () => {
   const loadMoreTVShows = async () => {
     const nextPage = currentPage.tvShows + 1;
     setIsFetchingMore(true);
+
+    // Track load more action
+    analytics.track(AnalyticsEvents.LOAD_MORE_CLICKED, {
+      content_type: ContentType.TV_SHOW,
+      current_page: currentPage.tvShows,
+      next_page: nextPage
+    });
 
     try {
       const params = {
@@ -291,15 +348,15 @@ const App: React.FC = () => {
           {/* Hero Section */}
           <div className="text-center space-y-8 max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-4 animate-bounce">
-              <Sparkles size={14} />
-              Unified Content Intelligence
+              <Clapperboard size={14} />
+              Your Multi-Regional Movie Finder
             </div>
             <h2 className="text-6xl sm:text-8xl font-black text-white tracking-tight leading-[0.85] sm:leading-[0.85]">
-              Catalog <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Intersection.</span>
+              Venn
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Cine.</span>
             </h2>
             <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-              Tired of fragmented libraries? Discover movies and TV shows shared across your favorite countries and streaming providers in seconds.
+              Find movies available in multiple countries at once.
             </p>
           </div>
 
@@ -323,12 +380,12 @@ const App: React.FC = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="animate-spin" size={32} />
-                    Processing Libraries...
+                    Loading
                   </>
                 ) : (
                   <>
                     <Search size={32} strokeWidth={3} />
-                    Find Global Matches
+                    Search
                   </>
                 )}
               </div>
@@ -373,6 +430,7 @@ const App: React.FC = () => {
       </main>
 
       <Footer />
+      <Analytics />
     </div>
   );
 };

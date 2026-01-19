@@ -124,14 +124,6 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, viewMode, selectedCount
                 ) : null;
               })}
             </div>
-            <div className="flex items-center gap-3">
-               <button className="p-3 bg-white text-slate-950 rounded-2xl hover:scale-105 transition-all shadow-xl">
-                  <Play size={20} fill="currentColor" />
-               </button>
-               <button className="p-3 bg-slate-800 text-white rounded-2xl hover:scale-105 transition-all border border-slate-700">
-                  <Plus size={20} />
-               </button>
-            </div>
           </div>
         </div>
       </div>
@@ -155,15 +147,9 @@ const ContentCard: React.FC<ContentCardProps> = ({ item, viewMode, selectedCount
           <span className="bg-white/10 backdrop-blur-xl text-white text-[8px] font-black px-3 py-1.5 rounded-full border border-white/20 uppercase tracking-widest shadow-2xl">
             {item.type}
           </span>
-          <button className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 text-white hover:bg-white hover:text-indigo-600 transition-all">
+          {/* <button className="p-2 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 text-white hover:bg-white hover:text-indigo-600 transition-all">
             <Bookmark size={14} />
-          </button>
-        </div>
-
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-           <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center shadow-2xl shadow-indigo-600/50 scale-75 group-hover:scale-100 transition-transform duration-500 text-white">
-              <Play size={28} fill="currentColor" className="ml-1" />
-           </div>
+          </button> */}
         </div>
 
         <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-2 opacity-0 group-hover:opacity-100 translate-y-[10px] group-hover:translate-y-0 transition-all duration-500">
