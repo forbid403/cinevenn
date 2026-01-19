@@ -18,7 +18,7 @@ const Header: React.FC = () => {
           </div>
           <div>
             <h1 className="text-2xl font-black text-white tracking-tighter leading-none flex items-center gap-1">
-              VENN<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">CINE</span>
+              CINE<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">VENN</span>
             </h1>
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Global Cross-Reference Streaming Search</span>
           </div>

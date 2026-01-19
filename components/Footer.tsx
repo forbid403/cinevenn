@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
             <span className="font-black text-3xl tracking-tighter text-white">VENNSEARCH</span>
           </div>
           <p className="text-slate-500 text-xl leading-relaxed max-w-lg">
-            © 2026 VENN CINE. All rights reserved.
+            © 2026 CINE VENN. All rights reserved.
           </p>
         </div>
         <div className="space-y-6">

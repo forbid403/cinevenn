@@ -352,8 +352,8 @@ const App: React.FC = () => {
               Your Multi-Regional Movie Finder
             </div>
             <h2 className="text-6xl sm:text-8xl font-black text-white tracking-tight leading-[0.85] sm:leading-[0.85]">
-              Venn
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Cine.</span>
+              Cine
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">Venn.</span>
             </h2>
             <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
               Find movies available in multiple countries at once.
