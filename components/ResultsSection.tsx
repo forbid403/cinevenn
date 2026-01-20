@@ -1,52 +1,49 @@
 import React, { RefObject } from 'react';
 import { Sparkles, Clapperboard, Monitor, LayoutGrid, List, Filter, Loader2 } from 'lucide-react';
-import { ContentItem, ContentType, ViewMode } from '../types';
+import { ContentType } from '../types';
 import ContentCard from './ContentCard';
 import SkeletonCard from './SkeletonCard';
+import { useContentStore, useFilteredResults, useGenres } from '../stores/useContentStore';
 
 interface ResultsSectionProps {
-  movies: ContentItem[];
-  tvShows: ContentItem[];
-  filteredResults: ContentItem[];
-  isLoading: boolean;
-  isFetchingMore?: boolean;
-  error: string | null;
-  contentType: ContentType;
-  onContentTypeChange: (type: ContentType) => void;
-  viewMode: ViewMode;
-  onViewModeChange: (mode: ViewMode) => void;
-  genres: string[];
-  activeGenre: string;
-  onGenreChange: (genre: string) => void;
-  selectedCountriesCount: number;
-  selectedCountries: string[];
   resultsRef: RefObject<HTMLDivElement>;
-  onLoadMoreMovies?: () => void;
-  onLoadMoreTVShows?: () => void;
 }
 
-const ResultsSection: React.FC<ResultsSectionProps> = ({
-  movies,
-  tvShows,
-  filteredResults,
-  isLoading,
-  isFetchingMore,
-  error,
-  contentType,
-  onContentTypeChange,
-  viewMode,
-  onViewModeChange,
-  genres,
-  activeGenre,
-  onGenreChange,
-  selectedCountriesCount,
-  selectedCountries,
-  resultsRef,
-  onLoadMoreMovies,
-  onLoadMoreTVShows
-}) => {
+const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
+  // 스토어에서 상태와 액션 가져오기
+  const {
+    movies,
+    tvShows,
+    isLoading,
+    isFetchingMore,
+    hasSearched,
+    error,
+    contentType,
+    viewMode,
+    activeGenre,
+    selectedCountries,
+    setContentType,
+    setViewMode,
+    setActiveGenre,
+    loadMore
+  } = useContentStore();
+
+  // Selectors 사용 (최적화된 파생 상태)
+  const filteredResults = useFilteredResults();
+  const genres = useGenres();
+
   const totalResults = movies.length + tvShows.length;
   const showInitialSkeletons = isLoading && filteredResults.length === 0;
+
+  const getResultsTitle = () => {
+    if (isLoading && filteredResults.length === 0) {
+      return 'Loading...';
+    }
+    if (totalResults > 0) {
+      return `Results (${totalResults})`;
+    }
+    return 'Start Your Discovery';
+  };
 
   return (
     <div ref={resultsRef} className="space-y-10 min-h-[500px] pt-12">
@@ -56,20 +53,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <div className="space-y-3">
               <h3 className="text-4xl font-black text-white flex items-center gap-4 tracking-tighter">
                 <Sparkles className="text-indigo-400" size={36} />
-                {isLoading && filteredResults.length === 0
-                  ? 'Scanning Catalog...'
-                  : totalResults > 0
-                  ? `Shared Matches (${totalResults})`
-                  : 'Start Your Discovery'}
+                {getResultsTitle()}
               </h3>
               {!isLoading && totalResults > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-black rounded-full uppercase tracking-widest">
-                    Sync Complete
+                    Complete
                   </span>
-                  <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">
-                    Global Availability: {selectedCountriesCount} Regions
-                  </p>
                 </div>
               )}
             </div>
@@ -77,7 +67,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             {/* Content Type Selector */}
             <div className="flex bg-slate-900/50 border border-slate-800 p-1.5 rounded-2xl shadow-xl w-fit">
               <button
-                onClick={() => onContentTypeChange(ContentType.MOVIE)}
+                onClick={() => setContentType(ContentType.MOVIE)}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
                   contentType === ContentType.MOVIE
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -88,7 +78,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
                 Movies
               </button>
               <button
-                onClick={() => onContentTypeChange(ContentType.TV_SHOW)}
+                onClick={() => setContentType(ContentType.TV_SHOW)}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
                   contentType === ContentType.TV_SHOW
                     ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
@@ -103,7 +93,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
 
           <div className="flex bg-slate-900 border border-slate-800 p-1.5 rounded-2xl shadow-2xl">
             <button
-              onClick={() => onViewModeChange('grid')}
+              onClick={() => setViewMode('grid')}
               className={`p-3 rounded-xl transition-all duration-300 ${
                 viewMode === 'grid'
                   ? 'bg-indigo-600 text-white shadow-xl'
@@ -113,7 +103,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
               <LayoutGrid size={24} />
             </button>
             <button
-              onClick={() => onViewModeChange('list')}
+              onClick={() => setViewMode('list')}
               className={`p-3 rounded-xl transition-all duration-300 ${
                 viewMode === 'list'
                   ? 'bg-indigo-600 text-white shadow-xl'
@@ -131,7 +121,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             {genres.map(genre => (
               <button
                 key={genre}
-                onClick={() => onGenreChange(genre)}
+                onClick={() => setActiveGenre(genre)}
                 className={`px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
                   activeGenre === genre
                     ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-600/20'
@@ -169,13 +159,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
         {!isLoading && filteredResults.length > 0 && (
           <div className="flex justify-center pt-10">
             <button
-              onClick={() => {
-                if (contentType === ContentType.MOVIE && onLoadMoreMovies) {
-                  onLoadMoreMovies();
-                } else if (contentType === ContentType.TV_SHOW && onLoadMoreTVShows) {
-                  onLoadMoreTVShows();
-                }
-              }}
+              onClick={loadMore}
               disabled={isFetchingMore}
               className="group relative inline-flex items-center gap-3 px-10 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-2xl font-bold text-lg shadow-xl transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
             >
@@ -203,9 +187,15 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({
             <Filter className="text-slate-700" size={64} />
           </div>
           <div className="space-y-4">
-            <h4 className="text-4xl font-black text-slate-400 tracking-tighter">Ready to Search</h4>
+            <h4 className="text-4xl font-black text-slate-400 tracking-tighter">
+              {hasSearched ? 'No results.' : 'Ready to Search'}
+            </h4>
             <p className="text-slate-500 text-xl max-w-md mx-auto font-medium leading-relaxed">
-              Adjust your preferences and choose your desired content type. Hit the search button to find content overlaps.
+              {
+                hasSearched ?
+                  'One or more of the selected streaming services may not be supported in some countries.' :
+                  'Adjust your preferences and choose your desired content type. Hit the search button to find content overlaps.'
+              }
             </p>
           </div>
         </div>

@@ -3,20 +3,16 @@ import React, { useMemo } from 'react';
 import { COUNTRIES, OTT_SERVICES } from '../constants';
 import { Country, OTTService } from '../types';
 import { Check } from 'lucide-react';
+import { useContentStore } from '../stores/useContentStore';
 
-interface SelectionPanelProps {
-  selectedCountries: string[];
-  toggleCountry: (code: string) => void;
-  selectedServices: string[];
-  toggleService: (id: string) => void;
-}
-
-const SelectionPanel: React.FC<SelectionPanelProps> = ({
-  selectedCountries,
-  toggleCountry,
-  selectedServices,
-  toggleService
-}) => {
+const SelectionPanel: React.FC = () => {
+  // 스토어에서 상태와 액션 가져오기
+  const {
+    selectedCountries,
+    selectedServices,
+    toggleCountry,
+    toggleService
+  } = useContentStore();
   const sortedCountries = useMemo(() => {
     const selected = COUNTRIES.filter(c => selectedCountries.includes(c.code));
     const unselected = COUNTRIES.filter(c => !selectedCountries.includes(c.code));
@@ -39,7 +35,7 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
           <div className="space-y-2">
             <h3 className="text-2xl font-black text-white flex items-center gap-4 tracking-tight">
               <span className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-sm shadow-xl shadow-indigo-600/20">1</span>
-              Target Regions
+              Select Target Regions
             </h3>
             <p className="text-slate-500 text-sm font-medium ml-14">Select multiple countries to find common catalog overlaps.</p>
           </div>
@@ -80,7 +76,7 @@ const SelectionPanel: React.FC<SelectionPanelProps> = ({
           <div className="space-y-2">
             <h3 className="text-2xl font-black text-white flex items-center gap-4 tracking-tight">
               <span className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-sm shadow-xl shadow-indigo-600/20">2</span>
-              Streaming Platforms
+              Select Streaming Platforms
             </h3>
             <p className="text-slate-500 text-sm font-medium ml-14">Check availability against specific OTT providers.</p>
           </div>
