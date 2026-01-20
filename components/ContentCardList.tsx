@@ -82,7 +82,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
             </div>
           </div>
 
-          <p className="text-slate-400 text-[10px] sm:text-sm line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4 leading-relaxed hidden sm:block">
+          <p className="text-slate-400 text-[10px] sm:text-sm line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4 leading-relaxed hidden block">
             {item.description}
           </p>
         </div>
