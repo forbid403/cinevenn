@@ -20,16 +20,11 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
 
   const handleShowProviders = async () => {
-    if (actualProviders !== null) {
-      // Already loaded, toggle off
-      setActualProviders(null);
-      return;
-    }
-
     setIsLoadingProviders(true);
     try {
       const contentType = item.type === 'Movie' ? 'movie' : 'tv';
       const providers = await fetchWatchProviders(item.tmdbId, contentType, selectedCountries);
+      console.log(providers)
       setActualProviders(providers);
     } catch (error) {
       console.error('Failed to fetch providers:', error);
@@ -96,14 +91,16 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
             className="px-2 sm:px-4 py-1 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] sm:text-xs font-bold rounded-lg sm:rounded-xl transition-all disabled:opacity-50"
           >
             {
-               isLoadingProviders ? (
+              isLoadingProviders ? (
               <div className="flex items-center gap-1 sm:gap-2">
                 <Loader2 size={10} className="sm:w-3.5 sm:h-3.5 animate-spin" />
               </div>
-            ) : (
+              ) : (
               'Providers'
-            )}
-          </button>}
+              )
+            }
+          </button>
+          }
           {actualProviders?.slice(0, 4).map((serviceId) => {
             const service = getServiceInfo(serviceId);
             return service ? (
