@@ -5,6 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineVenn - Find movies available in multiple countries at once</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="description" content="Find TV shows and movies available across multiple countries and streaming platforms simultaneously. Select your target countries and OTT services to discover what's available globally.">
+    <meta name="keywords" content="streaming movies, multi-country streaming, global streaming search, OTT platforms, Netflix international, cross-country streaming, movie availability, streaming services comparison">
+    <meta name="author" content="CineVenn">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://cinevennsearch.vercel.app/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cinevennsearch.vercel.app/">
+    <meta property="og:title" content="CineVenn - Global Streaming Search">
+    <meta property="og:description" content="Find TV shows and movies available across multiple countries and streaming platforms simultaneously.">
+    <meta property="og:image" content="https://cinevennsearch.vercel.app/og-image.png">
+    <meta property="og:site_name" content="CineVenn">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CineVenn - Global Streaming Search">
+    <meta name="twitter:description" content="Find TV shows and movies available across multiple countries and streaming platforms simultaneously.">
+    <meta name="twitter:image" content="https://cinevennsearch.vercel.app/og-image.png">
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#4f46e5">
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +59,54 @@
             gtag('config', measurementId);
         }
     </script>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://cinevennsearch.vercel.app/#website",
+          "url": "https://cinevennsearch.vercel.app/",
+          "name": "CineVenn",
+          "description": "Find TV shows and movies available across multiple countries and streaming platforms simultaneously.",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://cinevennsearch.vercel.app/?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "WebApplication",
+          "@id": "https://cinevennsearch.vercel.app/#webapp",
+          "url": "https://cinevennsearch.vercel.app/",
+          "name": "CineVenn - Global Streaming Search",
+          "applicationCategory": "EntertainmentApplication",
+          "operatingSystem": "Any",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://cinevennsearch.vercel.app/#organization",
+          "name": "CineVenn",
+          "url": "https://cinevennsearch.vercel.app/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://cinevennsearch.vercel.app/favicon.svg"
+          }
+        }
+      ]
+    }
+    </script>
+
 <script type="importmap">
 {
   "imports": {

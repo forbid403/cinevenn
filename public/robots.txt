@@ -1,0 +1,9 @@
+# robots.txt for CineVenn
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://cinevennsearch.vercel.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
