@@ -37,3 +37,36 @@ export interface SearchParams {
   services: string[];
   type: ContentType;
 }
+
+// --- TMDB API Specific Types ---
+
+export interface TMDBResponse<T> {
+  page: number;
+  results: T[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface TMDBMovie {
+  id: number;
+  title: string;
+  original_title: string;
+  overview: string;
+  poster_path: string | null;
+  vote_average: number;
+  release_date: string;
+  genre_ids: number[];
+}
+
+export interface TMDBTVShow {
+  id: number;
+  name: string;
+  original_name: string;
+  overview: string;
+  poster_path: string | null;
+  vote_average: number;
+  first_air_date: string;
+  genre_ids: number[];
+}
+
+export type TMDBContent = TMDBMovie | TMDBTVShow;

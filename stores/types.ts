@@ -1,11 +1,5 @@
 import { ContentItem, ContentType, ViewMode } from '../types';
-
-export interface CacheEntry {
-  movies: ContentItem[];
-  tvShows: ContentItem[];
-  timestamp: number;
-  currentPage: { movies: number; tvShows: number };
-}
+import { IntersectionSearcher } from '../services/intersectionService';
 
 export interface ContentState {
   // Selection State
@@ -16,22 +10,20 @@ export interface ContentState {
   movies: ContentItem[];
   tvShows: ContentItem[];
   contentType: ContentType;
+  
+  // Searcher instance
+  searcher: IntersectionSearcher | null;
 
   // UI State
   viewMode: ViewMode;
   activeGenre: string;
 
-  // Pagination State
-  currentPage: { movies: number; tvShows: number };
-
   // Loading State
-  isLoading: boolean;
-  isFetchingMore: boolean;
+  isLoading: boolean; // For initial search
+  isFetchingMore: boolean; // For subsequent batches
   hasSearched: boolean;
+  hasMore: boolean; // Whether more results can be loaded
   error: string | null;
-
-  // Cache State (메모리만, persist 사용 안 함)
-  cache: Map<string, CacheEntry>;
 }
 
 export interface ContentActions {
@@ -40,11 +32,11 @@ export interface ContentActions {
   toggleService: (id: string) => void;
 
   // Search Actions
-  handleSearch: () => Promise<void>;
-  loadMore: () => Promise<void>;
+  handleSearch: () => void;
+  loadMoreResults: () => void;
 
   // Content Actions
-  setContentType: (type: ContentType) => Promise<void>;
+  setContentType: (type: ContentType) => void;
   setViewMode: (mode: ViewMode) => void;
   setActiveGenre: (genre: string) => void;
 }

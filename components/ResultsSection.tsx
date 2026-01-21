@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import React, { RefObject, useRef, useEffect } from 'react';
 import { Sparkles, Clapperboard, Monitor, LayoutGrid, List, Filter, Loader2 } from 'lucide-react';
 import { ContentType } from '../types';
 import ContentCard from './ContentCard';
@@ -10,13 +10,11 @@ interface ResultsSectionProps {
 }
 
 const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
-  // 스토어에서 상태와 액션 가져오기
   const {
-    movies,
-    tvShows,
     isLoading,
     isFetchingMore,
     hasSearched,
+    hasMore,
     error,
     contentType,
     viewMode,
@@ -25,22 +23,45 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
     setContentType,
     setViewMode,
     setActiveGenre,
-    loadMore
+    loadMoreResults,
   } = useContentStore();
-
-  // Selectors 사용 (최적화된 파생 상태)
+  
   const filteredResults = useFilteredResults();
   const genres = useGenres();
 
-  const totalResults = movies.length + tvShows.length;
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading && !isFetchingMore) {
+          loadMoreResults();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    const currentObserverRef = observerRef.current;
+    if (currentObserverRef) {
+      observer.observe(currentObserverRef);
+    }
+
+    return () => {
+      if (currentObserverRef) {
+        observer.unobserve(currentObserverRef);
+      }
+    };
+  }, [observerRef, hasMore, isLoading, isFetchingMore, loadMoreResults]);
+
+
   const showInitialSkeletons = isLoading && filteredResults.length === 0;
 
   const getResultsTitle = () => {
-    if (isLoading && filteredResults.length === 0) {
-      return 'Loading...';
+    if (showInitialSkeletons) {
+      return 'Searching the Global Library...';
     }
-    if (totalResults > 0) {
-      return `Results (${totalResults})`;
+    if (filteredResults.length > 0) {
+      return `Results (${filteredResults.length})`;
     }
     return 'Start Your Discovery';
   };
@@ -55,10 +76,12 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
                 <Sparkles className="text-indigo-400" size={36} />
                 {getResultsTitle()}
               </h3>
-              {!isLoading && totalResults > 0 && (
+              {!isLoading && !isFetchingMore && hasSearched && filteredResults.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-400 text-[10px] font-black rounded-full uppercase tracking-widest">
-                    Complete
+                  <span className={`px-3 py-1 border text-[10px] font-black rounded-full uppercase tracking-widest ${
+                    hasMore ? 'bg-orange-500/10 border-orange-500/30 text-orange-400' : 'bg-green-500/10 border-green-500/30 text-green-400'
+                  }`}>
+                    {hasMore ? 'Scroll to load more' : 'All results loaded'}
                   </span>
                 </div>
               )}
@@ -116,7 +139,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
         </div>
 
         {/* Genre Filters */}
-        {!isLoading && totalResults > 0 && (
+        {filteredResults.length > 0 && (
           <div className="flex flex-wrap items-center gap-3">
             {genres.map(genre => (
               <button
@@ -148,54 +171,32 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
               {filteredResults.map((item) => (
                 <ContentCard key={item.id} item={item} viewMode={viewMode} selectedCountries={selectedCountries} />
               ))}
-              {isFetchingMore && Array.from({ length: 5 }).map((_, i) => (
-                <SkeletonCard key={`more-skeleton-${i}`} viewMode={viewMode} />
-              ))}
             </>
           )}
         </div>
 
-        {/* Load More Button */}
-        {!isLoading && filteredResults.length > 0 && (
-          <div className="flex justify-center pt-10">
-            <button
-              onClick={loadMore}
-              disabled={isFetchingMore}
-              className="group relative inline-flex items-center gap-3 px-10 py-4 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white rounded-2xl font-bold text-lg shadow-xl transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isFetchingMore ? (
-                <>
-                  <Loader2 className="animate-spin" size={20} />
-                  <span>Loading...</span>
-                </>
-              ) : (
-                <>
-                  <span>Load More</span>
-                  <svg className="w-5 h-5 transition-transform group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </>
-              )}
-            </button>
-          </div>
-        )}
+        {/* Infinite Scroll Loader */}
+        <div ref={observerRef} className="h-10">
+          {isFetchingMore && (
+            <div className="flex justify-center items-center gap-3 text-slate-500 py-4">
+              <Loader2 className="animate-spin" size={20} />
+              <span className="font-semibold">Searching for more results...</span>
+            </div>
+          )}
+        </div>
       </div>
-
-      {!isLoading && totalResults === 0 && !error && (
+      
+      {!isLoading && filteredResults.length === 0 && hasSearched && !error && (
         <div className="py-40 text-center space-y-8 bg-slate-900/10 rounded-[4rem] border-2 border-dashed border-slate-800/40 max-w-5xl mx-auto group">
           <div className="w-32 h-32 bg-slate-800/20 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 border border-slate-700/30 transition-all group-hover:scale-110 group-hover:rotate-12 group-hover:bg-slate-800/40">
             <Filter className="text-slate-700" size={64} />
           </div>
           <div className="space-y-4">
             <h4 className="text-4xl font-black text-slate-400 tracking-tighter">
-              {hasSearched ? 'No results.' : 'Ready to Search'}
+              No Common Results Found
             </h4>
             <p className="text-slate-500 text-xl max-w-md mx-auto font-medium leading-relaxed">
-              {
-                hasSearched ?
-                  'One or more of the selected streaming services may not be supported in some countries.' :
-                  'Adjust your preferences and choose your desired content type. Hit the search button to find content overlaps.'
-              }
+              Try a different combination of countries and services.
             </p>
           </div>
         </div>
