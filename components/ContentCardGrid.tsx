@@ -43,6 +43,10 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
     <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 transition-all duration-500 flex flex-col shadow-md hover:shadow-gold-600/10">
       <div className="w-full h-64 flex-shrink-0 relative overflow-hidden">
         <img
+          onError={(e) => {
+            console.log(e);
+            e.currentTarget.src = '/placeholder.webp';
+          }}
           src={item.imageUrl}
           alt={item.title}
           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"

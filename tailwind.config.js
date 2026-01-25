@@ -31,7 +31,6 @@ export default {
         montserrat: ['Montserrat', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
         imperial: ['Imperial Script', 'cursive'],
-        specialElite: ['"Special Elite"', 'cursive'],
       },
       animation: {
         'ken-burns': 'kenBurns 20s ease-in-out infinite alternate',

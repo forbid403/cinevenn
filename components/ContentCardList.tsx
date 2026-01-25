@@ -38,6 +38,9 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
     <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 hover:border-gold-600 transition-all duration-500 flex flex-row h-36 sm:h-48 shadow-xl hover:shadow-gold-600/10">
       <div className="w-24 sm:w-36 flex-shrink-0 relative overflow-hidden">
         <img
+          onError={(e) => {
+            e.currentTarget.src = '/placeholder.webp';
+          }}
           src={item.imageUrl}
           alt={item.title}
           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
