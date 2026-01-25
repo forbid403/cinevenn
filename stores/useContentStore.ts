@@ -74,16 +74,15 @@ export const useContentStore = create<ContentStore>()(
           contentType: state.contentType,
           onResults: (items: ContentItem[]) => {
             set(currentState => {
-              const updates = {
-                currentBatchProgress: currentState.currentBatchProgress + items.length
-              };
-
               if (currentState.contentType === ContentType.MOVIE) {
-                return { ...updates, movies: [...currentState.movies, ...items] };
+                return { movies: [...currentState.movies, ...items] };
               } else {
-                return { ...updates, tvShows: [...currentState.tvShows, ...items] };
+                return { tvShows: [...currentState.tvShows, ...items] };
               }
             });
+          },
+          onProgress: (current: number) => {
+            set({ currentBatchProgress: current });
           },
           onBatchComplete: () => {
              set({ isLoading: false, isFetchingMore: false, currentBatchProgress: 0 });

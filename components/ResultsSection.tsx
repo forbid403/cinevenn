@@ -194,27 +194,14 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
             ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-10"
             : "space-y-8"
         }>
-          {showInitialSkeletons ? (
-            Array.from({ length: 10 }).map((_, i) => (
-              <SkeletonCard key={`initial-skeleton-${i}`} viewMode={viewMode} />
-            ))
-          ) : (
-            <>
-              {filteredResults.map((item) => (
-                <ContentCard key={item.id} item={item} viewMode={viewMode} selectedCountries={selectedCountries} />
-              ))}
-              {/* {showLoadMoreSkeletons && (
-                Array.from({ length: 3 }).map((_, i) => (
-                  <SkeletonCard key={`loadmore-skeleton-${i}`} viewMode={viewMode} />
-                ))
-              )} */}
-            </>
-          )}
+          {filteredResults.map((item) => (
+            <ContentCard key={item.id} item={item} viewMode={viewMode} selectedCountries={selectedCountries} />
+          ))}
         </div>
 
         {/* Infinite Scroll Loader */}
         <div ref={observerRef} className="h-10">
-          {isFetchingMore && (
+          {(isFetchingMore || isLoading) && (
             <div className="flex flex-col items-center gap-2 text-sepia py-4">
               <div className="flex items-center gap-3">
                 <Loader2 className="animate-spin text-[#e4a44e]" size={20} />
