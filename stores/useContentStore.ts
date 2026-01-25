@@ -26,11 +26,29 @@ export const useContentStore = create<ContentStore>()(
       searcher: null,
 
       // Selection Actions
-      toggleCountry: (code) => set((state) => ({
-        selectedCountries: state.selectedCountries.includes(code)
-          ? state.selectedCountries.filter(c => c !== code)
-          : [...state.selectedCountries, code]
-      })),
+      toggleCountry: (code) => set((state) => {
+        const isCurrentlySelected = state.selectedCountries.includes(code);
+
+        // Allow deselection always
+        if (isCurrentlySelected) {
+          return {
+            selectedCountries: state.selectedCountries.filter(c => c !== code)
+          };
+        }
+
+        // Prevent selection if already at limit (2 countries)
+        if (state.selectedCountries.length >= 2) {
+          return {
+            error: 'You can select a maximum of 2 countries. Please deselect one first.'
+          };
+        }
+
+        // Allow selection (under limit)
+        return {
+          selectedCountries: [...state.selectedCountries, code],
+          error: null
+        };
+      }),
 
       toggleService: (id) => set((state) => ({
         selectedServices: state.selectedServices.includes(id)

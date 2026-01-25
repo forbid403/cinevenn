@@ -13,6 +13,9 @@ const SelectionPanel: React.FC = () => {
     toggleCountry,
     toggleService
   } = useContentStore();
+
+  const isCountryLimitReached = selectedCountries.length >= 2;
+
   const sortedCountries = useMemo(() => {
     const selected = COUNTRIES.filter(c => selectedCountries.includes(c.code));
     const unselected = COUNTRIES.filter(c => !selectedCountries.includes(c.code));
@@ -37,27 +40,37 @@ const SelectionPanel: React.FC = () => {
               {/* <span className="w-10 h-10 bg-[#e4a44e] flex items-center justify-center text-sm font-montserrat text-white shadow-xl shadow-[#e4a44e]/20">1</span> */}
               Select Target Regions
             </h3>
-            <p className="text-sm font-montserrat font-medium">Select multiple countries to find common catalog overlaps.</p>
+            <p className="text-sm font-montserrat font-medium">
+              Select multiple countries to find common catalog overlaps.
+              <span className="text-[#e4a44e] font-bold"> Maximum 2 countries.</span>
+            </p>
           </div>
           <div className="flex items-center gap-3 px-6 py-2 bg-cream-100  border border-warm-gray-200">
             <div className={`w-2 h-2  ${selectedCountries.length > 0 ? 'bg-[#e4a44e] animate-pulse' : 'bg-warm-gray-400'}`} />
             <span className="text-[10px] font-montserrat font-bold uppercase tracking-widest">
-              {selectedCountries.length} Selected
+              {selectedCountries.length}/2 Selected
             </span>
           </div>
         </div>
         <div className="border border-warm-gray-200 bg-warm-gray-200 p-px">
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-px bg-warm-gray-200">
-            {sortedCountries.map((c: Country) => (
-              <button
-                key={c.code}
-                onClick={() => toggleCountry(c.code)}
-                className={`group flex flex-col items-center gap-3 p-5 transition-all duration-500 relative overflow-hidden ${
-                  selectedCountries.includes(c.code)
-                    ? 'bg-black text-white shadow-2xl shadow-black/30 scale-[1.05] z-10'
-                    : 'bg-cream-100 hover:text-white'
-                }`}
-              >
+            {sortedCountries.map((c: Country) => {
+              const isSelected = selectedCountries.includes(c.code);
+              const isDisabled = !isSelected && isCountryLimitReached;
+
+              return (
+                <button
+                  key={c.code}
+                  onClick={() => toggleCountry(c.code)}
+                  disabled={isDisabled}
+                  className={`group flex flex-col items-center gap-3 p-5 transition-all duration-500 relative overflow-hidden ${
+                    isSelected
+                      ? 'bg-black text-white shadow-2xl shadow-black/30 scale-[1.05] z-10'
+                      : isDisabled
+                      ? 'bg-warm-gray-100 opacity-50 cursor-not-allowed'
+                      : 'bg-cream-100 hover:text-white'
+                  }`}
+                >
                 <div className="relative">
                   <span className="text-4xl filter drop-shadow-2xl transition-transform group-hover:scale-110 duration-500 block">{c.flag}</span>
                   {selectedCountries.includes(c.code) && (
@@ -68,7 +81,8 @@ const SelectionPanel: React.FC = () => {
                 </div>
                 <span className="text-[10px] font-montserrat font-bold uppercase tracking-[0.15em]">{c.name}</span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

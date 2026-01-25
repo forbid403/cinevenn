@@ -78,7 +78,8 @@ const App: React.FC = () => {
 
           {/* Error Message */}
           {error && (
-            error === 'Please select at least one country and one platform.' ? (
+            error === 'Please select at least one country and one platform.' ||
+            error === 'You can select a maximum of 2 countries. Please deselect one first.' ? (
               <p className="text-orange text-sm font-lora font-medium -mt-4 text-center">
                 {error}
               </p>
