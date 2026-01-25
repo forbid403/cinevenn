@@ -17,7 +17,7 @@ export const OTT_SERVICES: OTTService[] = [
     id: 'netflix', 
     name: 'Netflix', 
     color: 'bg-red-600',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Netflix-new-icon.png'
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/1/18/Netflix_2016_N_logo.svg'
   },
   { 
     id: 'disney', 

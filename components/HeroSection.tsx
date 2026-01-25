@@ -4,7 +4,7 @@ import { Sparkles } from 'lucide-react';
 const HeroSection: React.FC = () => {
   return (
     <div className="text-center space-y-8 max-w-4xl mx-auto">
-      <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-4 animate-bounce">
+      <div className="inline-flex items-center gap-3 px-5 py-2 bg-indigo-500/10 border text-xs font-black uppercase tracking-[0.3em] mb-4 animate-bounce">
         <Sparkles size={14} />
         Unified Content Intelligence
       </div>

@@ -22,6 +22,7 @@ export const useContentStore = create<ContentStore>()(
       hasSearched: false,
       hasMore: false,
       error: null,
+      currentBatchProgress: 0,
       searcher: null,
 
       // Selection Actions
@@ -41,7 +42,9 @@ export const useContentStore = create<ContentStore>()(
         const state = get();
 
         if (state.selectedCountries.length === 0 || state.selectedServices.length === 0) {
-          set({ error: 'Please select at least one country and one platform.' });
+          set({ 
+            error: 'Please select at least one country and one platform.' 
+          });
           return;
         }
 
@@ -53,7 +56,8 @@ export const useContentStore = create<ContentStore>()(
           hasMore: true,
           movies: [],
           tvShows: [],
-          activeGenre: 'All'
+          activeGenre: 'All',
+          currentBatchProgress: 0
         });
 
         const searchStartTime = Date.now();
@@ -70,15 +74,19 @@ export const useContentStore = create<ContentStore>()(
           contentType: state.contentType,
           onResults: (items: ContentItem[]) => {
             set(currentState => {
+              const updates = {
+                currentBatchProgress: currentState.currentBatchProgress + items.length
+              };
+
               if (currentState.contentType === ContentType.MOVIE) {
-                return { movies: [...currentState.movies, ...items] };
+                return { ...updates, movies: [...currentState.movies, ...items] };
               } else {
-                return { tvShows: [...currentState.tvShows, ...items] };
+                return { ...updates, tvShows: [...currentState.tvShows, ...items] };
               }
             });
           },
           onBatchComplete: () => {
-             set({ isLoading: false, isFetchingMore: false });
+             set({ isLoading: false, isFetchingMore: false, currentBatchProgress: 0 });
           },
           onFinish: () => {
             const finalState = get();
@@ -88,11 +96,11 @@ export const useContentStore = create<ContentStore>()(
               countries: finalState.selectedCountries,
               services: finalState.selectedServices
             });
-            set({ isLoading: false, isFetchingMore: false, hasMore: false });
+            set({ isLoading: false, isFetchingMore: false, hasMore: false, currentBatchProgress: 0 });
           },
           onError: (err: string) => {
             analytics.track(AnalyticsEvents.SEARCH_ERROR, { error_message: err });
-            set({ error: err, isLoading: false, isFetchingMore: false, hasSearched: true, hasMore: false });
+            set({ error: err, isLoading: false, isFetchingMore: false, hasSearched: true, hasMore: false, currentBatchProgress: 0 });
           }
         });
 
@@ -105,7 +113,7 @@ export const useContentStore = create<ContentStore>()(
         if (isLoading || isFetchingMore || !hasMore || !searcher) {
           return;
         }
-        set({ isFetchingMore: true });
+        set({ isFetchingMore: true, currentBatchProgress: 0 });
         searcher.run();
       },
 

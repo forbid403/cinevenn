@@ -1,37 +1,58 @@
 import React from 'react';
-import { Share2, Info, Clapperboard } from 'lucide-react';
+import { Share2, Clapperboard } from 'lucide-react';
 import { openToast } from './Toast';
+import { useScrollPosition } from '../hooks/useScrollPosition';
 
 const Header: React.FC = () => {
+  const scrollPosition = useScrollPosition();
+  const isScrolled = scrollPosition > 300;
 
   const handleClickShare = () => {
     navigator.clipboard.writeText('https://cinevennsearch.vercel.app');
     openToast('Link Copied!');
   }
 
+  const handleLogoClick = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
   return (
-    <header className="sticky top-0 z-[100] bg-slate-950/70 backdrop-blur-2xl border-b border-slate-800/40">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <div className="flex items-center gap-4 group cursor-pointer">
-          <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/40 transition-all group-hover:rotate-12 group-hover:scale-110">
-            <Clapperboard className="text-white" size={28} />
+    <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+      isScrolled
+        ? 'bg-cream-50/95 backdrop-blur-2xl shadow-lg'
+        : 'bg-transparent border-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div
+          className="flex items-center gap-2 group cursor-pointer active:scale-95 transition-transform"
+          onClick={handleLogoClick}
+          role="button"
+          aria-label="Scroll to top"
+        >
+          <div className="w-12 h-12 flex items-center justify-center transition-all group-hover:rotate-12 group-hover:scale-110">
+            <Clapperboard className="text-cream-50" size={28} />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-tighter leading-none flex items-center gap-1">
-              CINE<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">VENN</span>
+            <h1 className={`text-xl font-playfair font-black text-warm-black tracking-tighter leading-none flex items-center transition-all duration-300 ${
+              isScrolled
+                ? 'opacity-100 translate-x-0'
+                : 'opacity-0 -translate-x-4 pointer-events-none'
+            }`}>
+              Cine<span className="text-[#e4a44e]">Venn</span>
             </h1>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Global Cross-Reference Streaming Search</span>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white hover:border-slate-700 transition-all">
-            <Share2 size={20} onClick={handleClickShare} />
-          </button>
-          {/* <button className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-white hover:border-slate-700 transition-all">
-            <Info size={20} />
-          </button> */}
-        </div>
+        {
+          isScrolled &&
+          <div className="flex items-center gap-3">
+            <button className="p-3 bg-warm-black/5  text-sepia transition-all duration-300" onClick={handleClickShare}>
+              <Share2 size={20} />
+            </button>
+          </div>
+        }
       </div>
     </header>
   );

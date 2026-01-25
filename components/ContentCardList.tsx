@@ -35,16 +35,16 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
   };
 
   return (
-    <div className="group relative bg-slate-900/40 backdrop-blur-xl rounded-2xl overflow-hidden border border-slate-800/60 hover:border-indigo-500/50 transition-all duration-500 flex flex-row h-36 sm:h-48 shadow-2xl hover:shadow-indigo-500/10">
+    <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 hover:border-gold-600 transition-all duration-500 flex flex-row h-36 sm:h-48 shadow-xl hover:shadow-gold-600/10">
       <div className="w-24 sm:w-36 flex-shrink-0 relative overflow-hidden">
         <img
           src={item.imageUrl}
           alt={item.title}
           className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-sepia/60 to-transparent" />
         <div className="absolute top-2 left-2">
-          <span className="bg-indigo-600/90 backdrop-blur-md text-white text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-1 rounded-full border border-white/20 uppercase tracking-widest">
+          <span className="bg-gold-600/90 backdrop-blur-md text-white text-[8px] sm:text-[10px] font-montserrat font-bold px-2 sm:px-3 py-1  border border-cream-50/30 uppercase tracking-widest">
             {item.type}
           </span>
         </div>
@@ -53,31 +53,31 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
         <div>
           <div className="flex justify-between items-start gap-2 sm:gap-4 mb-2 sm:mb-3">
             <div className="space-y-1 min-w-0">
-              <h4 className="text-sm sm:text-2xl font-black text-white leading-tight group-hover:text-indigo-400 transition-colors line-clamp-2 sm:truncate">
+              <h4 className="text-sm sm:text-2xl font-baskerville font-bold text-warm-black leading-tight group-hover:text-gold-600 transition-colors line-clamp-2 sm:truncate">
                 {item.title}
               </h4>
-              <div className="flex items-center gap-2 sm:gap-3 text-slate-500 text-[9px] sm:text-xs font-bold uppercase tracking-widest flex-wrap">
+              <div className="flex items-center gap-2 sm:gap-3 text-sepia text-[9px] sm:text-xs font-montserrat font-bold uppercase tracking-widest flex-wrap">
                 <div className="flex items-center gap-1">
                   <Calendar size={10} className="sm:w-3.5 sm:h-3.5" />
                   <span>{item.year}</span>
                 </div>
-                <span className="w-1 h-1 rounded-full bg-slate-800 hidden sm:block" />
+                <span className="w-1 h-1  bg-warm-gray-200 hidden sm:block" />
                 <div className="flex gap-1 flex-wrap">
                   {item.genre.slice(0, 2).map((g, idx) => (
-                    <span key={idx} className="text-indigo-400/80">
+                    <span key={idx} className="text-gold-700">
                       {g}{idx < Math.min(item.genre.length, 2) - 1 ? ',' : ''}
                     </span>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-slate-950/50 rounded-xl sm:rounded-2xl border border-slate-800/50 text-yellow-500 flex-shrink-0">
-              <Star size={12} className="sm:w-4 sm:h-4" fill="currentColor" />
-              <span className="text-xs sm:text-base font-black">{item.rating}</span>
+            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-2 bg-warm-black/80sm: text-gold-600 flex-shrink-0">
+              <Star size={12} className="sm:w-4 sm:h-4" fill="#e4a44e" strokeWidth={0} />
+              <span className="text-xs sm:text-base font-montserrat font-bold">{item.rating}</span>
             </div>
           </div>
 
-          <p className="text-slate-400 text-[10px] sm:text-sm line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4 leading-relaxed hidden block">
+          <p className="text-warm-gray-400 text-[10px] sm:text-sm line-clamp-1 sm:line-clamp-2 mb-2 sm:mb-4 leading-relaxed font-lora hidden block">
             {item.description}
           </p>
         </div>
@@ -88,7 +88,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
               null : <button
             onClick={handleShowProviders}
             disabled={isLoadingProviders}
-            className="px-2 sm:px-4 py-1 sm:py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[9px] sm:text-xs font-bold rounded-lg sm:rounded-xl transition-all disabled:opacity-50"
+            className="px-2 sm:px-4 py-1 sm:py-2 border text-[9px] sm:text-xs font-montserrat font-boldsm: transition-all disabled:opacity-50"
           >
             {
               isLoadingProviders ? (
@@ -106,7 +106,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
             return service ? (
               <div
                 key={serviceId}
-                className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white flex items-center justify-center overflow-hidden p-1.5 transition-all hover:scale-110 shadow-lg"
+                className="w-7 h-7 sm:w-9 sm:h-9sm: bg-cream-100 border border-warm-gray-200 flex items-center justify-center overflow-hidden p-1.5 transition-all hover:scale-110 shadow-lg"
                 title={service.name}
               >
                 <img
@@ -118,7 +118,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
             ) : null;
           })}
           {actualProviders && actualProviders.length > 4 && (
-            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-950/80 text-slate-300 border border-slate-700 flex items-center justify-center font-black text-[8px] sm:text-[10px]">
+            <div className="w-7 h-7 sm:w-9 sm:h-9sm: bg-warm-black/80 text-cream-50 border border-warm-black/70 flex items-center justify-center font-montserrat font-bold text-[8px] sm:text-[10px]">
               +{actualProviders.length - 4}
             </div>
           )}

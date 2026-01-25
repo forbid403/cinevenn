@@ -21,12 +21,17 @@ const Toast: FC<ToastProps> = ({ id, message, duration = 3000, onClose }) => {
   return (
     <div
       style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        color: 'white',
-        padding: '10px 20px',
-        borderRadius: '5px',
+        backgroundColor: 'rgba(245, 241, 232, 0.95)',
+        color: '#1a1614',
+        padding: '14px 24px',
+        borderRadius: '1rem',
         marginBottom: '10px',
         textAlign: 'center',
+        border: '1px solid rgba(212, 207, 200, 0.6)',
+        boxShadow: '0 10px 25px rgba(212, 165, 116, 0.2)',
+        fontFamily: 'Lora, serif',
+        fontWeight: '600',
+        fontSize: '14px',
       }}
     >
       {message}

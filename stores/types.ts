@@ -24,6 +24,7 @@ export interface ContentState {
   hasSearched: boolean;
   hasMore: boolean; // Whether more results can be loaded
   error: string | null;
+  currentBatchProgress: number; // Current items loaded in active batch (0-20)
 }
 
 export interface ContentActions {
