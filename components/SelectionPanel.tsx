@@ -126,6 +126,12 @@ const SelectionPanel: React.FC = () => {
             ))}
           </div>
         </div>
+        <div className="flex flex-col justify-end gap-1 pt-1 text-gray-800">
+          <p className="text-xs">Data Powered by 
+            <a href="https://justwatch.com/" target="_blank" rel="noopener noreferrer" className="hover:underline"> JustWatch</a>
+          </p>
+        </div>
+
       </div>
     </div>
   );

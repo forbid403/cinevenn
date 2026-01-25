@@ -108,12 +108,12 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
                   'Providers'
                 )}
               </button>}
-            {actualProviders?.map((serviceId) => {
+              {actualProviders?.map((serviceId) => {
               const service = getServiceInfo(serviceId);
               return service ? (
                 <div
                   key={serviceId}
-                  className="w-12 h-12 bg-white border-2 border-warm-gray-200 rounded-lg flex items-center justify-center overflow-hidden p-1 transition-all hover:scale-110 hover:border-gold-600 hover:shadow-xl cursor-pointer active:scale-95"
+                  className="w-12 h-12 bg-white border border-warm-gray-200 rounded-lg flex items-center justify-center overflow-hidden p-1 transition-all hover:scale-110 hover:border-gold-600 hover:shadow-xl cursor-pointer active:scale-95"
                   title={service.name}
                 >
                   <img
