@@ -135,7 +135,21 @@ export const useContentStore = create<ContentStore>()(
       },
 
       setContentType: (type) => {
-        set({ contentType: type });
+        const state = get();
+        if (state.contentType !== type) {
+          if(state.searcher) {
+            state.searcher.cancel();
+          }
+          set({
+            contentType: type,
+            movies: [],
+            tvShows: [],
+            hasSearched: false,
+            activeGenre: 'All',
+            searcher: null, 
+            hasMore: false
+          });
+        }
       },
 
       setViewMode: (mode) => set({ viewMode: mode }),
