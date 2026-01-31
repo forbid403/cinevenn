@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { ContentItem } from '../types';
 import { Star, Calendar, Loader2 } from 'lucide-react';
 import { OTT_SERVICES } from '../constants';
-import { fetchWatchProviders } from '../services/tmdbService';
+import { fetchWatchProviders } from '../services/intersectionService';
+import { getExternalLink } from '../services/tmdbService';
 
 interface ContentCardGridProps {
   item: ContentItem;
@@ -19,7 +20,8 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
   const [actualProviders, setActualProviders] = useState<string[] | null>(null);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
 
-  const handleShowProviders = async () => {
+  const handleShowProviders = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     if (actualProviders !== null) {
       // Already loaded, toggle off
       setActualProviders(null);
@@ -28,8 +30,7 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
 
     setIsLoadingProviders(true);
     try {
-      const contentType = item.type === 'Movie' ? 'movie' : 'tv';
-      const providers = await fetchWatchProviders(item.tmdbId, contentType, selectedCountries);
+      const providers = await fetchWatchProviders(item.tmdbId, item.type, selectedCountries);
       setActualProviders(providers);
     } catch (error) {
       console.error('Failed to fetch providers:', error);
@@ -39,8 +40,16 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
     }
   };
 
+    const handleClickItem = (e: React.MouseEvent<HTMLDivElement>) => {
+      getExternalLink(item.tmdbId, item.type).then(fetchedUrl => {
+        e.preventDefault();
+        window.open(fetchedUrl, '_blank');
+      }); 
+    }
+  
+
   return (
-    <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 transition-all duration-500 flex flex-col shadow-md hover:shadow-gold-600/10">
+    <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 transition-all duration-500 flex flex-col shadow-md hover:shadow-gold-600/10 hover:cursor-pointer" onClick={handleClickItem}>
       <div className="w-full h-64 flex-shrink-0 relative overflow-hidden">
         <img
           onError={(e) => {
@@ -104,9 +113,8 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
                   <div className="flex items-center gap-1 sm:gap-2">
                     <Loader2 size={10} className="sm:w-3.5 sm:h-3.5 animate-spin" />
                   </div>
-                ) : (
-                  'Providers'
-                )}
+                ) : <div className="hover:cursor-pointer">Providers</div>
+                }
               </button>}
               {actualProviders?.map((serviceId) => {
               const service = getServiceInfo(serviceId);

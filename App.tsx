@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Search, Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useContentStore } from './stores/useContentStore';
 import Header from './components/Header';
 import VintageHero from './components/VintageHero';
@@ -8,6 +8,7 @@ import ResultsSection from './components/ResultsSection';
 import Footer from './components/Footer';
 import { installToast } from './components/Toast';
 import { Analytics } from '@vercel/analytics/react';
+import { analytics } from './services/analyticsService';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -21,7 +22,10 @@ const App: React.FC = () => {
     isLoading,
     error,
     handleSearch,
-    hasSearched
+    hasSearched,
+    selectedCountries,
+    selectedServices,
+    contentType
   } = useContentStore();
 
   const handleSearchClick = async () => {

@@ -2,7 +2,6 @@ import React, { RefObject, useRef, useEffect, useState } from 'react';
 import { Clapperboard, Monitor, LayoutGrid, List, Filter, Loader2 } from 'lucide-react';
 import { ContentType } from '../types';
 import ContentCard from './ContentCard';
-import SkeletonCard from './SkeletonCard';
 import { useContentStore, useFilteredResults, useGenres } from '../stores/useContentStore';
 
 interface ResultsSectionProps {
@@ -21,6 +20,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
     activeGenre,
     selectedCountries,
     currentBatchProgress,
+    isGenreFilterActive,
     setContentType,
     setViewMode,
     setActiveGenre,
@@ -47,6 +47,10 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
   ];
 
   useEffect(() => {
+    if (isGenreFilterActive) {
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoading && !isFetchingMore) {
@@ -66,7 +70,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
         observer.unobserve(currentObserverRef);
       }
     };
-  }, [observerRef, hasMore, isLoading, isFetchingMore, loadMoreResults]);
+  }, [observerRef, hasMore, isLoading, isFetchingMore, loadMoreResults, isGenreFilterActive]);
 
   // Rotate loading messages every 2 seconds
   useEffect(() => {

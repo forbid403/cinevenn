@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { ContentItem } from '../types';
 import { Star, Calendar, Loader2 } from 'lucide-react';
 import { OTT_SERVICES } from '../constants';
-import { fetchWatchProviders } from '../services/tmdbService';
+import { fetchWatchProviders } from '../services/intersectionService';
+import { getExternalLink } from '../services/tmdbService';
 
 interface ContentCardListProps {
   item: ContentItem;
@@ -18,11 +19,12 @@ const getServiceInfo = (serviceId: string) => {
 const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountries }) => {
   const [actualProviders, setActualProviders] = useState<string[] | null>(null);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
+  const contentType = item.type;
 
-  const handleShowProviders = async () => {
+  const handleShowProviders = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
     setIsLoadingProviders(true);
     try {
-      const contentType = item.type === 'Movie' ? 'movie' : 'tv';
       const providers = await fetchWatchProviders(item.tmdbId, contentType, selectedCountries);
       console.log(providers)
       setActualProviders(providers);
@@ -34,8 +36,15 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
     }
   };
 
+  const handleClickItem = (e: React.MouseEvent<HTMLDivElement>) => {
+    getExternalLink(item.tmdbId, contentType).then(fetchedUrl => {
+      e.preventDefault();
+      window.open(fetchedUrl, '_blank');
+    }); 
+  }
+
   return (
-    <div className="group relative bg-cream-100 backdrop-blur-xl  overflow-hidden border border-warm-gray-200 hover:border-gold-600 transition-all duration-500 flex flex-row h-36 sm:h-48 shadow-xl hover:shadow-gold-600/10">
+    <div className="group relative bg-cream-100 backdrop-blur-xl hover:cursor-pointer overflow-hidden border border-warm-gray-200 hover:border-gold-600 transition-all duration-500 flex flex-row h-36 sm:h-48 shadow-xl hover:shadow-gold-600/10" onClick={handleClickItem}>
       <div className="w-24 sm:w-36 flex-shrink-0 relative overflow-hidden">
         <img
           onError={(e) => {
@@ -98,9 +107,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
               <div className="flex items-center gap-1 sm:gap-2">
                 <Loader2 size={10} className="sm:w-3.5 sm:h-3.5 animate-spin" />
               </div>
-              ) : (
-              'Providers'
-              )
+              ) : <div className="hover:cursor-pointer">Providers</div>
             }
           </button>
           }

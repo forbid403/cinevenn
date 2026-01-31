@@ -1,7 +1,7 @@
 
 export enum ContentType {
-  MOVIE = 'Movie',
-  TV_SHOW = 'TV Show'
+  MOVIE = 'movie',
+  TV_SHOW = 'tv'
 }
 
 export type ViewMode = 'grid' | 'list';
@@ -24,7 +24,7 @@ export interface ContentItem {
   tmdbId: number; // TMDB ID for fetching additional data
   title: string;
   description: string;
-  type: string; // Changed to string to handle 'Movie' or 'TV Show' strings from API
+  type: ContentType;
   rating: number;
   year: number;
   imageUrl: string;

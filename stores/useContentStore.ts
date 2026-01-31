@@ -6,6 +6,7 @@ import { ContentItem, ContentType, ViewMode } from '../types';
 import { IntersectionSearcher } from '../services/intersectionService';
 import { analytics, AnalyticsEvents } from '../services/analyticsService';
 
+// Main Zustand store
 export const useContentStore = create<ContentStore>()(
   devtools(
     (set, get) => ({
@@ -24,6 +25,7 @@ export const useContentStore = create<ContentStore>()(
       error: null,
       currentBatchProgress: 0,
       searcher: null,
+      isGenreFilterActive: false,
 
       // Selection Actions
       toggleCountry: (code) => set((state) => {
@@ -75,6 +77,7 @@ export const useContentStore = create<ContentStore>()(
           movies: [],
           tvShows: [],
           activeGenre: 'All',
+          isGenreFilterActive: false,
           currentBatchProgress: 0
         });
 
@@ -126,8 +129,8 @@ export const useContentStore = create<ContentStore>()(
       },
 
       loadMoreResults: () => {
-        const { searcher, isLoading, isFetchingMore, hasMore } = get();
-        if (isLoading || isFetchingMore || !hasMore || !searcher) {
+        const { searcher, isLoading, isFetchingMore, hasMore, isGenreFilterActive } = get();
+        if (isLoading || isFetchingMore || !hasMore || !searcher || isGenreFilterActive) {
           return;
         }
         set({ isFetchingMore: true, currentBatchProgress: 0 });
@@ -146,6 +149,7 @@ export const useContentStore = create<ContentStore>()(
             tvShows: [],
             hasSearched: false,
             activeGenre: 'All',
+            isGenreFilterActive: false,
             searcher: null, 
             hasMore: false
           });
@@ -153,31 +157,33 @@ export const useContentStore = create<ContentStore>()(
       },
 
       setViewMode: (mode) => set({ viewMode: mode }),
-      setActiveGenre: (genre) => set({ activeGenre: genre }),
+      setActiveGenre: (genre) => set({
+        activeGenre: genre,
+        isGenreFilterActive: genre !== 'All'
+      }),
     }),
     { name: 'ContentStore' }
   )
 );
 
-// Selector Hooks (성능 최적화)
-export const useDisplayedResults = () =>
-  useContentStore(
-    useShallow(state => state.contentType === ContentType.MOVIE ? state.movies : state.tvShows)
-  );
+// Custom hooks for derived state
+export const useFilteredResults = () => {
+  return useContentStore(useShallow((state) => {
+    const items = state.contentType === ContentType.MOVIE ? state.movies : state.tvShows;
+    if (state.activeGenre === 'All') {
+      return items;
+    }
+    return items.filter(item => item.genre.includes(state.activeGenre));
+  }));
+};
 
-export const useFilteredResults = () =>
-  useContentStore(
-    useShallow(state => {
-      const displayed = state.contentType === ContentType.MOVIE ? state.movies : state.tvShows;
-      if (state.activeGenre === 'All') return displayed;
-      return displayed.filter(item => item.genre.includes(state.activeGenre));
-    })
-  );
-
-export const useGenres = () =>
-  useContentStore(
-    useShallow(state => {
-      const displayed = state.contentType === ContentType.MOVIE ? state.movies : state.tvShows;
-      return ['All', ...Array.from(new Set(displayed.flatMap(item => item.genre)))].slice(0, 8);
-    })
-  );
+export const useGenres = () => {
+  return useContentStore(useShallow((state) => {
+    const items = state.contentType === ContentType.MOVIE ? state.movies : state.tvShows;
+    const genreSet = new Set<string>();
+    items.forEach(item => {
+      item.genre.forEach(g => genreSet.add(g));
+    });
+    return ['All', ...Array.from(genreSet).sort()];
+  }));
+};
