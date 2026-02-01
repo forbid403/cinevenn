@@ -29,7 +29,6 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
     setIsLoadingProviders(true);
     try {
       const providers = await fetchWatchProviders(item.tmdbId, contentType, selectedCountries);
-      console.log(providers)
       setActualProviders(providers);
     } catch (error) {
       console.error('Failed to fetch providers:', error);
@@ -40,12 +39,11 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
   };
 
   const handleClickItem = (e: React.MouseEvent<HTMLDivElement>) => {
-    getExternalLink(item.tmdbId, contentType).then(fetchedUrl => {
-      e.preventDefault();
+    e.preventDefault();
 
+    getExternalLink(item.tmdbId, contentType).then(fetchedUrl => {
       // Determine external site from URL
       const externalSite = fetchedUrl.includes('imdb.com') ? 'imdb' : 'tmdb';
-
       // Track external content click
       analytics.track(AnalyticsEvents.CLICK_EXTERNAL_CONTENT, {
         content_id: item.id,

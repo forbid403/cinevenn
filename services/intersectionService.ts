@@ -72,7 +72,7 @@ async function fetchSortedDiscoverPage(
     page: number,
     contentType: ContentType,
 ): Promise<DiscoverResult> {
-    const sortBy = 'original_title.asc';
+    const sortBy = 'title.asc';
     const url = `${API_BASE}/discover/${contentType}?watch_region=${country}&with_watch_providers=${providers}&sort_by=${sortBy}&include_adult=false&language=en-US&page=${page}`;
 
     const response = await fetch(url, fetchOptions);
@@ -195,14 +195,14 @@ export class IntersectionSearcher {
                 const currentItem = stream.data[stream.pointer];
                 if (currentItem) {
                     const title = 'title' in currentItem ? currentItem.title : ('name' in currentItem ? currentItem.name : '');
-                    if (minTitle === null || title < minTitle) {
-                        minTitle = title;
+                    const normalizedTitle = title.toLowerCase();
+                    if (minTitle === null || normalizedTitle < minTitle) {
+                        minTitle = normalizedTitle;
                     }
                 }
             }
 
             if (minTitle === null) {
-                // This implies all streams are done
                 continue;
             }
 
@@ -210,7 +210,7 @@ export class IntersectionSearcher {
                 const currentItem = stream.data[stream.pointer];
                 if (!currentItem) return false;
                 const title = 'title' in currentItem ? currentItem.title : ('name' in currentItem ? currentItem.name : '');
-                return title === minTitle;
+                return title.toLowerCase() === minTitle;
             });
 
             if (intersectingStreams.length === this.props.countries.length) {
@@ -226,7 +226,7 @@ export class IntersectionSearcher {
         }
 
         this.props.onResults(batchResults);
-        
+
         if (foundInBatch > 0) {
           this.props.onBatchComplete();
         }

@@ -44,9 +44,8 @@ const ContentCardGrid: React.FC<ContentCardGridProps> = ({ item, selectedCountri
   };
 
     const handleClickItem = (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault();
       getExternalLink(item.tmdbId, item.type).then(fetchedUrl => {
-        e.preventDefault();
-
         // Determine external site from URL
         const externalSite = fetchedUrl.includes('imdb.com') ? 'imdb' : 'tmdb';
 
