@@ -55,29 +55,8 @@ export const analytics = {
   }
 };
 
-/**
- * Commonly used event names for type safety
- */
 export const AnalyticsEvents = {
-  // Selection events
-  COUNTRY_SELECTED: 'country_selected',
-  COUNTRY_DESELECTED: 'country_deselected',
-  SERVICE_SELECTED: 'service_selected',
-  SERVICE_DESELECTED: 'service_deselected',
-
-  // Search events
-  SEARCH_INITIATED: 'search_initiated',
-  SEARCH_COMPLETED: 'search_completed',
-  SEARCH_ERROR: 'search_error',
-
-  // Content events
-  CONTENT_TYPE_CHANGED: 'content_type_changed',
-  VIEW_MODE_CHANGED: 'view_mode_changed',
-  GENRE_FILTERED: 'genre_filtered',
-  LOAD_MORE_CLICKED: 'load_more_clicked',
-
-  // Content interaction events
-  PROVIDERS_SHOWN: 'providers_shown',
-  CONTENT_PLAYED: 'content_played',
-  CONTENT_BOOKMARKED: 'content_bookmarked'
+  RUN_SEARCH: 'run_search',
+  VIEW_SHARED_CONTENT_LIST: 'view_shared_content_list',
+  CLICK_EXTERNAL_CONTENT: 'click_external_content'
 } as const;

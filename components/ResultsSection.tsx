@@ -3,6 +3,7 @@ import { Clapperboard, Monitor, LayoutGrid, List, Filter, Loader2 } from 'lucide
 import { ContentType } from '../types';
 import ContentCard from './ContentCard';
 import { useContentStore, useFilteredResults, useGenres } from '../stores/useContentStore';
+import { analytics, AnalyticsEvents } from '../services/analyticsService';
 
 interface ResultsSectionProps {
   resultsRef: RefObject<HTMLDivElement>;
@@ -19,6 +20,7 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
     viewMode,
     activeGenre,
     selectedCountries,
+    selectedServices,
     currentBatchProgress,
     isGenreFilterActive,
     setContentType,
@@ -26,12 +28,13 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
     setActiveGenre,
     loadMoreResults,
   } = useContentStore();
-  
+
   const filteredResults = useFilteredResults();
   const genres = useGenres();
 
   const observerRef = useRef<HTMLDivElement>(null);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [hasTrackedView, setHasTrackedView] = useState(false);
 
   const loadingMessages = [
     "The reels are spinning...",
@@ -88,6 +91,25 @@ const ResultsSection: React.FC<ResultsSectionProps> = ({ resultsRef }) => {
     // Cleanup on unmount or when dependencies change
     return () => clearTimeout(timer);
   }, [isFetchingMore, currentMessageIndex, loadingMessages.length]);
+
+  // Track view_shared_content_list event when results are first displayed
+  useEffect(() => {
+    if (!hasTrackedView && filteredResults.length > 0 && !isLoading && hasSearched) {
+      analytics.track(AnalyticsEvents.VIEW_SHARED_CONTENT_LIST, {
+        content_type: contentType,
+        country_count: selectedCountries.length,
+        platform_count: selectedServices.length,
+        result_count: filteredResults.length,
+        has_result: filteredResults.length > 0
+      });
+      setHasTrackedView(true);
+    }
+
+    // Reset tracking flag when a new search is initiated
+    if (isLoading && hasTrackedView) {
+      setHasTrackedView(false);
+    }
+  }, [filteredResults.length, isLoading, hasSearched, hasTrackedView, contentType, selectedCountries, selectedServices]);
 
 
   const showInitialSkeletons = isLoading && filteredResults.length === 0;

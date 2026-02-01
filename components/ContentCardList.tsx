@@ -5,6 +5,8 @@ import { Star, Calendar, Loader2 } from 'lucide-react';
 import { OTT_SERVICES } from '../constants';
 import { fetchWatchProviders } from '../services/intersectionService';
 import { getExternalLink } from '../services/tmdbService';
+import { analytics, AnalyticsEvents } from '../services/analyticsService';
+import { useContentStore } from '../stores/useContentStore';
 
 interface ContentCardListProps {
   item: ContentItem;
@@ -20,6 +22,7 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
   const [actualProviders, setActualProviders] = useState<string[] | null>(null);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
   const contentType = item.type;
+  const selectedServices = useContentStore((state) => state.selectedServices);
 
   const handleShowProviders = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -39,8 +42,22 @@ const ContentCardList: React.FC<ContentCardListProps> = ({ item, selectedCountri
   const handleClickItem = (e: React.MouseEvent<HTMLDivElement>) => {
     getExternalLink(item.tmdbId, contentType).then(fetchedUrl => {
       e.preventDefault();
+
+      // Determine external site from URL
+      const externalSite = fetchedUrl.includes('imdb.com') ? 'imdb' : 'tmdb';
+
+      // Track external content click
+      analytics.track(AnalyticsEvents.CLICK_EXTERNAL_CONTENT, {
+        content_id: item.id,
+        content_type: item.type,
+        title: item.title,
+        external_site: externalSite,
+        country_count: selectedCountries.length,
+        platform_count: selectedServices.length
+      });
+
       window.open(fetchedUrl, '_blank');
-    }); 
+    });
   }
 
   return (

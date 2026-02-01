@@ -8,7 +8,7 @@ import ResultsSection from './components/ResultsSection';
 import Footer from './components/Footer';
 import { installToast } from './components/Toast';
 import { Analytics } from '@vercel/analytics/react';
-import { analytics } from './services/analyticsService';
+import { analytics, AnalyticsEvents } from './services/analyticsService';
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -29,6 +29,15 @@ const App: React.FC = () => {
   } = useContentStore();
 
   const handleSearchClick = async () => {
+    // Track search button click
+    analytics.track(AnalyticsEvents.RUN_SEARCH, {
+      selected_countries: selectedCountries.join(','),
+      country_count: selectedCountries.length,
+      selected_platforms: selectedServices.join(','),
+      platform_count: selectedServices.length,
+      content_type: contentType
+    });
+
     await handleSearch();
 
     if (!hasSearched || error) {
